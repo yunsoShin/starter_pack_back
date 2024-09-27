@@ -1,0 +1,65 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/dockerfile.backend
+    container_name: backend
+    ports:
+      - "7778:7778"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - IS_DEV=${IS_DEV}
+      # - JWT_SECRET=${JWT_SECRET}
+      # - BUCKET_ENDPOINT=${BUCKET_ENDPOINT}
+      # - BUCKET_REGION=${BUCKET_REGION}
+      # - BUCKET_ACCESS_KEY=${BUCKET_ACCESS_KEY}
+      # - BUCKET_SECRET_KEY=${BUCKET_SECRET_KEY}
+      # - BUCKET_NAME=${BUCKET_NAME}  사용하고있는 버킷 옵션에 따라 구성 
+
+    depends_on:
+      - mysql
+    networks:
+      - mynetwork  # 네트워크 추가
+    restart: on-failure  # 백엔드가 실패할 경우 자동으로 재시작
+
+  # frontend:
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: ../docker/dockerfile.frontend
+  #   container_name: frontend
+  #   ports:
+  #     - "3201:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - mynetwork  # 네트워크 추가
+
+
+  mysql:
+    build:
+      context: ./  # docker-compose.yml 파일이 위치한 폴더
+      dockerfile: ./dockerfile.mysql
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - "6654:3306"  # 외부에서는 7781 포트로 접근하고, 내부적으로는 env파일에서 구성한 3306 포트 사용 // 로컬호스트머신에서는  워크벤치 , sequel 등 GUI툴로 6654 에 접근
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf  # 외부 설정 파일을 마운트 만약 env파일의 패스워드 , DB이름이 변경시 마운트 초기화 필요
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # 초기 DB환경 설정을 위한 스크립트 , DB의 첫 실행시 에러가 발생하는것은 정상적인 실행이니 종료후 다시 run을 해주면 정상 작동됨.
+    networks:
+      - mynetwork  # 네트워크 추가
+
+
+volumes:
+  db_data:
+
+networks:
+  mynetwork:  # 네트워크 정의
+    driver: bridge
