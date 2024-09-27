@@ -1,31 +1,34 @@
-import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
+import { DataSource } from "typeorm";
 import { User } from "@/user/entities/user.entity";
 
 dotenv.config();
-let dataSourceInstance: DataSource;
 
+export const dataSourceInstance = new DataSource({
+  type: "mysql",
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [User],
+  migrations: [__dirname + "/src/migrations/*.ts"],
+  charset: "utf8mb4",
+  synchronize: true,
+  // logging: true,
+  logging: false,
+  extra: {
+    collation: "utf8mb4_unicode_ci", // Add the collation property here
+  },
+});
+
+dataSourceInstance.initialize().catch((error) => {
+  console.error("Error during Data Source initialization", error);
+});
+
+// Optional: Helper function for retrieving the data source
 export const getDataSource = async (): Promise<DataSource> => {
-  if (!dataSourceInstance) {
-    //인스턴스 1개만 DB연결 및 유효하도록 싱글턴 패턴
-    //nest g resource <생성 리소스> CLI로 생성된 엔티티를 디폴트로함 경로 구조는 src/<리소스>/entities/리소스.entity.ts
-
-    dataSourceInstance = new DataSource({
-      type: "mysql",
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User],
-      migrations: [__dirname + "/../migrations/*{.ts,.js}"],
-      charset: "utf8mb4",
-      synchronize: true, // 실서비스에서는 false로?
-      logging: false,
-      extra: {
-        collation: "utf8mb4_unicode_ci",
-      },
-    });
+  if (!dataSourceInstance.isInitialized) {
     await dataSourceInstance.initialize();
   }
   return dataSourceInstance;

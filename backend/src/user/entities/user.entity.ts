@@ -14,9 +14,6 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  username: string;
-
-  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -25,9 +22,9 @@ export class User {
   @Column({ default: "user" })
   role: string; // 사용자의 역할 (예: 'admin', 'user')
 
-  @CreateDateColumn({ type: "timestamp" })
+  @CreateDateColumn({ name: "created_at", comment: "생성날짜" })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: "timestamp" })
+  @UpdateDateColumn({ name: "updated_at", comment: "수정날짜" })
   updatedAt: Date;
 }

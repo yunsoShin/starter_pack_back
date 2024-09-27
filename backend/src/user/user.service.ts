@@ -13,13 +13,12 @@ export class UserService {
   ) {}
 
   async signUp(createUserDto: CreateUserDto): Promise<User> {
-    const { username, email, password, role } = createUserDto;
+    const { email, password, role } = createUserDto;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = this.userRepository.create({
-      username,
       email,
       password: hashedPassword,
       role: role || "user", // role이 없을 경우 기본값은 'user'
@@ -49,7 +48,7 @@ export class UserService {
     throw new NotFoundException("login fail");
   }
 
-  async findByUsername(username: string): Promise<User | undefined> {
-    return await this.userRepository.findOne({ where: { username } });
+  async findByUsername(email: string): Promise<User | undefined> {
+    return await this.userRepository.findOne({ where: { email } });
   }
 }
