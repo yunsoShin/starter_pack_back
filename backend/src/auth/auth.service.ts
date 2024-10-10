@@ -29,8 +29,11 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    const accessToken = await this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET, // 명시적으로 비밀 키 설정
+      expiresIn: "1h", // 1시간 동안 유효
+    });
+
+    return { accessToken };
   }
 }
