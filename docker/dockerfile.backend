@@ -33,4 +33,4 @@ RUN npm install --omit=dev
 EXPOSE 5121
 
 # 앱 실행 (프로덕션 모드)
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
