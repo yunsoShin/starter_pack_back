@@ -1,21 +1,13 @@
-import { Module } from "@nestjs/common";
-import { UserService } from "./user.service";
-import { UserController } from "./user.controller";
-import { User } from "./entities/user.entity";
-import { DataSource } from "typeorm";
-import { DatabaseModule } from "src/database/database.moduel";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserService } from './user.service';
+import { UserController } from './user.controller';
+import { User } from './entities/user.entity';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [TypeOrmModule.forFeature([User])], // User 엔티티를 리포지토리로 주입 가능하게 설정
   controllers: [UserController],
-  providers: [
-    UserService,
-    {
-      provide: "USER_REPOSITORY",
-      useFactory: (dataSource: DataSource) => dataSource.getRepository(User),
-      inject: ["DATA_SOURCE"],
-    },
-  ],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}
