@@ -28,12 +28,14 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
     "db:run": "npm run typeorm migration:run -- -d ./typeorm.config.ts",
     "db:revert": "npm run typeorm -- -d ./typeorm.config.ts migration:revert",
     "db:create": "npm run typeorm -- migration:create ./src/migrations/$npm_config_name",
     "db:generate": "npm run typeorm -- migration:generate ./src/migrations/migrations/$npm_config_name -d ./typeorm.config.ts",
-    "db:generate:window": "npm run typeorm -- migration:generate ./src/migrations/$npm_config_name -d ./typeorm.config.ts"
+    "db:generate:window": "npm run typeorm -- migration:generate ./src/migrations/$npm_config_name -d ./typeorm.config.ts",
+    "db:generate:docker":"npm run typeorm -- migration:generate ./src/migrations/migrations/$npm_config_name -d /app/typeorm.config.ts"
+
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
