@@ -15,18 +15,12 @@ services:
       - IS_DEV=${IS_DEV}
       - JWT_SECRET=${JWT_SECRET}
       - BACKEND_PORT=${BACKEND_PORT}
-      # - BUCKET_ENDPOINT=${BUCKET_ENDPOINT}
-      # - BUCKET_REGION=${BUCKET_REGION}
-      # - BUCKET_ACCESS_KEY=${BUCKET_ACCESS_KEY}
-      # - BUCKET_SECRET_KEY=${BUCKET_SECRET_KEY}
-      # - BUCKET_NAME=${BUCKET_NAME}  사용하고있는 버킷 옵션에 따라 구성 
-
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy  # mysql 서비스가 healthy 상태가 되면 backend 실행
     networks:
-      - mynetwork  # 네트워크 추가
-    restart: on-failure  # 백엔드가 실패할 경우 자동으로 재시작
-
+      - mynetwork
+    restart: on-failure
 
   mysql:
     build:
@@ -37,18 +31,23 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
     ports:
-      - "6654:3306"  # 외부에서는 6654 포트로 접근하고, 내부적으로는 env파일에서 구성한 3306 포트 사용 // 로컬호스트머신에서는  워크벤치 , sequel 등 GUI툴로 6654 에 접근
+      - "6654:3306"  # 외부에서는 6654 포트로 접근하고, 내부적으로는 env파일에서 구성한 3306 포트 사용
     volumes:
       - db_data:/var/lib/mysql
-      - ./my.cnf:/etc/mysql/my.cnf  # 외부 설정 파일을 마운트 만약 env파일의 패스워드 , DB이름이 변경시 마운트 초기화 필요
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # 초기 DB환경 설정을 위한 스크립트 , DB의 첫 실행시 에러가 발생하는것은 정상적인 실행이니 종료후 다시 run을 해주면 정상 작동됨.
+      - ./my.cnf:/etc/mysql/my.cnf
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:  # MySQL이 준비 상태인지 확인하는 헬스체크
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 30s  # 헬스체크 주기
+      timeout: 10s   # 헬스체크 제한 시간
+      retries: 5     # 헬스체크 실패 시 재시도 횟수
+      start_period: 40s  # 초기 헬스체크를 시작하기 전 대기 시간
     networks:
-      - mynetwork  # 네트워크 추가
-
+      - mynetwork
 
 volumes:
   db_data:
 
 networks:
-  mynetwork:  # 네트워크 정의
+  mynetwork:
     driver: bridge
