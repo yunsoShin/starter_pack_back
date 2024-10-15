@@ -34,8 +34,8 @@
     "db:create": "npm run typeorm -- migration:create ./src/migrations/$npm_config_name",
     "db:generate": "npm run typeorm -- migration:generate ./src/migrations/migrations/$npm_config_name -d ./typeorm.config.ts",
     "db:generate:window": "npm run typeorm -- migration:generate ./src/migrations/$npm_config_name -d ./typeorm.config.ts",
-    "db:generate:docker":"npm run typeorm -- migration:generate ./src/migrations/migrations/$npm_config_name -d /app/typeorm.config.ts"
-
+    "db:generate:docker":"npm run typeorm -- migration:generate /app/dist/src/migrations/migrations/$npm_config_name -d /app/dist/typeorm.config.js",
+    "db:run:docker": "npm run typeorm migration:run -- -d /app/dist/typeorm.config.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
