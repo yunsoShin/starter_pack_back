@@ -1,6 +1,8 @@
+import { HttpStatus } from "@nestjs/common";
+
 export type Result<T, E> =
   | { isSuccess: true; value: T }
-  | { isSuccess: false; error: E };
+  | { isSuccess: false; error: E; statusCode: HttpStatus };
 
 /* 
 // 사용 예시
@@ -262,6 +264,16 @@ export const success = <T>(value: T): Result<T, never> => {
   return { isSuccess: true, value };
 };
 
-export const failure = <E>(error: E): Result<never, E> => {
-  return { isSuccess: false, error };
-};
+export function failure<E>({
+  message,
+  status,
+}: {
+  message: E;
+  status?: HttpStatus;
+}): Result<never, E> {
+  return {
+    isSuccess: false,
+    error: message,
+    statusCode: status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+  };
+}
