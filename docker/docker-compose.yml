@@ -7,8 +7,8 @@ services:
     ports:
       - "7778:7778"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - DB_HOST=mysql # mysql 컨테이너 이름
+      - DB_PORT=3306
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
@@ -17,36 +17,76 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
     depends_on:
       mysql:
-        condition: service_healthy  # mysql 서비스가 healthy 상태가 되면 backend 실행
+        condition: service_healthy
     networks:
       - mynetwork
-    restart: on-failure
+    restart: always
 
   mysql:
     build:
-      context: ./  # docker-compose.yml 파일이 위치한 폴더
+      context: ./ 
       dockerfile: ./dockerfile.mysql
     container_name: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
     ports:
-      - "6654:3306"  # 외부에서는 6654 포트로 접근하고, 내부적으로는 env파일에서 구성한 3306 포트 사용
+      - "6654:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./my.cnf:/etc/mysql/my.cnf
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:  # MySQL이 준비 상태인지 확인하는 헬스체크
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1"]
-      interval: 30s  # 헬스체크 주기
-      timeout: 10s   # 헬스체크 제한 시간
-      retries: 5     # 헬스체크 실패 시 재시도 횟수
-      start_period: 40s  # 초기 헬스체크를 시작하기 전 대기 시간
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h mysql -u root -p${MYSQL_ROOT_PASSWORD} || exit 1" ] # localhost 대신 mysql 사용
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       - mynetwork
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: agreez_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    networks:
+      - mynetwork
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.9.0
+    container_name: agreez_logstash
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./pipelines.yml:/usr/share/logstash/config/pipelines.yml
+    networks:
+      - mynetwork
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    container_name: agreez_kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    networks:
+      - mynetwork
+    depends_on:
+      - elasticsearch
+
 volumes:
   db_data:
+  es_data:
 
 networks:
   mynetwork:
