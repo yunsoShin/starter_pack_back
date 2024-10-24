@@ -1,22 +1,15 @@
-# starter_pack_back
+항상 동일한 설정을 하려 노력하지않아도 됩니다
 
-nestJS 백엔드 초기환경구성
+해당 프로젝트는 현재스콥에서 Mysql, nestJS, 모든 API를 로깅하는  ELK로 구성되어있습니다
 
-/starter_pack_back/docker
-sudo docker-compose down
-sudo docker-compose up --build
+추후 DB종류, 사용되는 메세지브로커 , 인메모리캐시등등을 붙여나갈 예정입니다.
 
-초기환경구성 이후
-docker-compose restart
+# intall 
 
-# 마운트된 DB설정에 수정사항이 생겼을때 볼륨을 백업한 이후 해당 볼륨을 초기화하거나 다른곳에 볼륨을 재구성해야합니다.
+./docker 폴더 내의 env파일을 설정한 뒤 , 
 
-sudo docker-compose down --volumes
+./docker 
+docker-compose up -d 을 실행해 도커를 구성해주세요
 
-# 도커 이미지를 새로 빌드 (캐시 사용 안 함)
 
-sudo docker-compose build --no-cache
 
-# 컨테이너 시작
-
-sudo docker-compose up -d
