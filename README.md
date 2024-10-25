@@ -68,25 +68,24 @@ Elasticsearch: http://localhost:9200
 
 
 프로젝트 구조
-
+```bash
 .
-├── backend
-│   └── # NestJS 소스 코드 및 관련 파일
-├── deploy
-│   └── # 배포 관련 파일
+├── backend               # NestJS 소스 코드 및 관련 파일
+├── deploy                # 배포 관련 파일
 ├── docker
-│   ├── .env_example         # 환경 변수 예시 파일
-│   ├── docker-compose.yml   # Docker Compose 설정 파일
-│   ├── dockerfile.backend   # NestJS Dockerfile
-│   ├── dockerfile.frontend  # 프론트엔드 Dockerfile
-│   ├── dockerfile.mysql     # MySQL Dockerfile
-│   ├── init.sql             # MySQL 초기화 스크립트
-│   ├── logstash.conf        # Logstash 설정 파일
-│   ├── my.cnf               # MySQL 설정 파일
-│   └── pipelines.yml        # Logstash 파이프라인 설정 파일
-├── .gitignore                # Git에서 추적하지 않을 파일 목록
-└── README.md                 # 리드미 파일
+│   ├── .env_example      # 환경 변수 예시 파일
+│   ├── docker-compose.yml# Docker Compose 설정 파일
+│   ├── dockerfile.backend# NestJS Dockerfile
+│   ├── dockerfile.frontend# 프론트엔드 Dockerfile
+│   ├── dockerfile.mysql  # MySQL Dockerfile
+│   ├── init.sql          # MySQL 초기화 스크립트
+│   ├── logstash.conf     # Logstash 설정 파일
+│   ├── my.cnf            # MySQL 설정 파일
+│   └── pipelines.yml     # Logstash 파이프라인 설정 파일
+├── .gitignore            # Git에서 추적하지 않을 파일 목록
+└── README.md             # 리드미 파일
 
+```
 Docker Compose 구성 설명
 
 backend: NestJS 백엔드 애플리케이션을 위한 컨테이너입니다. 환경 변수는 .env 파일을 통해 정의되며, MySQL 데이터베이스와 의존성을 가집니다.
