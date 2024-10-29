@@ -1,0 +1,64 @@
+#docker-compose -f docker-compose.service.yml -p service_layer_test1 up -d --build
+
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/dockerfiles/dockerfile.backend
+    container_name: ${DOMAIN_NAME}_backend
+    ports:
+      - "${BACKEND_PORT}:${DOCKER_BACKEND_PORT}"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - IS_DEV=${IS_DEV}
+      - JWT_SECRET=${JWT_SECRET}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - starter_pack_service_network  # 명시적으로 네트워크 이름을 작성
+      - shared_network
+    restart: always
+
+  mysql:
+    build:
+      context: ./ 
+      dockerfile: ./dockerfiles/dockerfile.mysql
+    container_name: ${DOMAIN_NAME}_mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+    ports:
+      - "${DB_PORT}:${DOCKER_DB_PORT}"
+    volumes:
+      - starter_pack_db_volume:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h mysql -u root -p${DB_PASSWORD} || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - starter_pack_service_network
+      - shared_network
+    restart: always
+
+networks:
+  starter_pack_service_network:  # 명시적으로 네트워크 이름 작성
+    driver: bridge
+  shared_network:
+    external: true  # 외부 네트워크와 연결할 경우 외부 네트워크를 정의
+
+
+volumes:
+  starter_pack_db_volume:

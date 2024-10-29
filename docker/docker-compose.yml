@@ -32,8 +32,8 @@ services:
       dockerfile: ./dockerfiles/dockerfile.mysql
     container_name: ${DOMAIN_NAME}_mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     ports:
       - "6654:3306"
     volumes:
