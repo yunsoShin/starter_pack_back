@@ -24,7 +24,7 @@ const commonTypeOrmConfig: TypeOrmModuleOptions & DataSourceOptions = {
 export const typeOrmConfig = {
   ...commonTypeOrmConfig,
   synchronize: process.env.IS_DEV ? true : false, // 운영 환경에서는 false로 설정
-  logging: true,
+  logging: false,
 };
 
 export const dataSourceConfig: DataSourceOptions = {

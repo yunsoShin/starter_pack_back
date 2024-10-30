@@ -20,8 +20,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const serializedLog = JSON.stringify(log);
 
     // Logstash로 HTTP 요청을 통해 로그 전송
-    if (process.env.IS_DEV) {
-      console.log(process.env.IS_DEV);
+    if (process.env.IS_DEV === "false") {
       axios
         .post(`http://127.0.0.1:${process.env.LOGSTASH_PORT}`, serializedLog, {
           headers: {
