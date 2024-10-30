@@ -7,6 +7,7 @@ import {
   BeforeInsert,
 } from "typeorm";
 import * as bcrypt from "bcryptjs";
+import { UserRole } from "@/types/enumList";
 
 @Entity("users") // 테이블 이름을 'users'로 정의
 export class User {
@@ -19,7 +20,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: "user" })
+  @Column({ default: UserRole.USER })
   role: string; // 사용자의 역할 (예: 'admin', 'user')
 
   @CreateDateColumn({ name: "created_at", comment: "생성날짜" })
