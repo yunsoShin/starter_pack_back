@@ -19,6 +19,9 @@ RUN npm run build
 # Stage 2: Production
 FROM node:20.16.0 AS production
 
+# pm2 설치
+RUN npm install -g pm2
+
 # 작업 디렉토리 설정
 WORKDIR /app
 
@@ -33,4 +36,4 @@ RUN npm install --omit=dev
 EXPOSE 5121
 
 # 앱 실행 (프로덕션 모드)
-CMD ["node", "dist/src/main.js"]
+CMD ["pm2-runtime", "dist/src/main.js"]
