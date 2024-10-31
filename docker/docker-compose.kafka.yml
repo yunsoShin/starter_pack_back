@@ -1,0 +1,37 @@
+#docker-compose -f docker-compose.kafka.yml -p kafka_layer_test up -d --build
+
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: ${DOMAIN_NAME}_zookeeper
+    ports:
+      - "${ZOOKEEPER_PORT}:${DOCKER_ZOOKEEPER_PORT}"
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=${DOCKER_ZOOKEEPER_PORT}
+    networks:
+      - kafka_network  # 네트워크 이름은 환경 변수로 설정할 수 없습니다.
+    restart: always
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: ${DOMAIN_NAME}_kafka
+    ports:
+      - "${KAFKA_PORT}:${DOCKER_KAFKA_PORT}"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:${DOCKER_ZOOKEEPER_PORT}
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:${DOCKER_KAFKA_PORT}
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_ADVERTISED_HOST}:${KAFKA_PORT}
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_LOG_RETENTION_HOURS=168
+      - KAFKA_BROKER_ID=1
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka_network  # 네트워크 이름은 명시적으로 고정
+    restart: always
+
+networks:
+  kafka_network:
+    driver: bridge
